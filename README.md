@@ -22,6 +22,20 @@ Or simply printing at every step of the recursive ascent:
 
 I noticed that Geo Carncross (geocar) uses a similar approach when explaining k code to beginners (see [https://news.ycombinator.com/item?id=9122299](https://news.ycombinator.com/item?id=9122299), [https://www.youtube.com/watch?v=kTrOg19gzP4](https://www.youtube.com/watch?v=kTrOg19gzP4), and [https://news.ycombinator.com/item?id=8476633](https://news.ycombinator.com/item?id=8476633)).
 
+RodgerTheGreat/JohnEarnest added the 'explain' command to [oK](http://johnearnest.github.io/ok/index.html), his k5 REPL in JS. Try it by prefixing an expression with \x. 
+
+For example:
+
+	Welcome to oK v0.1
+	(inspired by K5)
+	  \x 1+/1+1 2 3
+	1 + 1 2 3 --> 2 3 4
+	1 + 2 --> 3
+	3 + 3 --> 6
+	6 + 4 --> 10
+	1 +/ 2 3 4 --> 10
+	10
+	
 
 Dependencies
 ------------
