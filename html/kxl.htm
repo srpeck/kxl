@@ -1,0 +1,48 @@
+<!doctype html><html><body onload="return connect(function(){focusc(cell);});"><title>kxl</title>
+<style>table,th,td{border:1px solid #ccc;border-collapse:collapse;}td{padding:1px 3px;width:100px}tr:first-child td,td:first-child{width:5px;background-color:#eee;font-weight:bold;text-align:center}#input{width:50%}#output{width:96%;height:300px;font-family:courier new;padding:10px;border:1px solid gray;margin-top:10px;overflow:auto}</style>
+<form onsubmit="return send();"><input type="text" id="input" autofocus autocomplete="off"></form><table id="sheet"></table><div id="output"></div>
+<script src="c.js"></script><script>
+function $(id){return document.getElementById(id);}
+var ws,formula={},input=$("input"),output=$("output"),cell="a[1]:",ecell="";
+function clearc(){input.focus(); $(cell).setAttribute("bgcolor","");}
+function focusc(c){$(c).setAttribute("bgcolor","94d4ff"); input.value=formula[c]||c;}
+$("sheet").onclick=function(e){clearc(); if(e.toElement.id){cell=e.toElement.id; focusc(cell);}};
+function connect(cb){
+    if("WebSocket" in window){
+        ws=new WebSocket("ws://"+window.location.host); ws.binaryType="arraybuffer"; output.innerHTML+="Connecting...<br>";
+        ws.onopen=function(e){output.innerHTML+="Connected.<br>"; cb();};
+        ws.onclose=function(e){output.innerHTML+="Disconnected. Send a line or refresh to reconnect.<br>";};
+        ws.onmessage=function(e){
+            var t="",d=deserialize(e.data);
+            for(var i in d)$(ecell[0]+"["+i+"]:").innerHTML=d[i];//TODO Extend beyond just single column update
+            if(typeof d==="object"&&d!==null){//TODO Handle nested objects
+                if(d.length&&typeof d[0]==="object"){
+                    t="<table><tr>"; for(var x in d[0])t+="<th>"+x+"</th>"; t+="</tr>";
+                    for(var i=0;i<d.length;i++){
+                        t+="<tr>"; for(var x in d[0])t+="<td>"+d[i][x]+"</td>"; t+="</tr>";
+                    }
+                    t+="</table>";
+                }else if(d.length)for(var i=0;i<d.length;i++)t+=d[i]+" ";
+                else for(var x in d)t+=x+" | "+d[x]+"<br>";
+            }else t=d||"";
+            output.innerHTML+="q)"+formula[ecell]+";"+ecell[0]+"<br>"+t+"<br>"; ecell=""; output.scrollTop=output.scrollHeight;
+        };
+        ws.onerror=function(e){output.innerHTML+=e.data+"<br>";};
+    }else alert("WebSockets not supported by your browser.");
+}
+function send(){
+    if(ws.readyState!==1)connect(send);
+    else{
+        ecell=cell; var t=input.value; formula[ecell]=t; ws.send(t+";"+ecell[0]);
+        clearc(); cell=ecell[0]+"["+(parseInt(/\w*\[(\w*)\]/.exec(ecell)[1])+1)+"]:"; if(!$(cell))cell=ecell; focusc(cell);
+    }
+    return false;
+}
+for(var i=0;i<11;i++){
+    var row=$("sheet").insertRow(-1);
+    for(var j=0;j<11;j++){
+        var letter=String.fromCharCode("a".charCodeAt(0)+j-1);
+        var c=row.insertCell(-1); c.id=letter+"["+i+"]:"; c.innerHTML=i&&j?"":i||letter;
+    }
+}
+</script></body></html>
