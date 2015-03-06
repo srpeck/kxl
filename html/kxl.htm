@@ -14,7 +14,8 @@ function connect(cb){
         ws.onclose=function(e){output.innerHTML+="Disconnected. Send a line or refresh to reconnect.<br>";};
         ws.onmessage=function(e){
             var t="",d=deserialize(e.data);
-            for(var i in d)$(ecell[0]+"["+i+"]:").innerHTML=d[i];//TODO Extend beyond just single column update
+            if(d[0]==='\'')$(ecell).innerHTML=d;
+            else for(var i in d)$(ecell[0]+"["+i+"]:").innerHTML=d[i];//TODO Extend beyond just single column update
             if(typeof d==="object"&&d!==null){//TODO Handle nested objects
                 if(d.length&&typeof d[0]==="object"){
                     t="<table><tr>"; for(var x in d[0])t+="<th>"+x+"</th>"; t+="</tr>";
